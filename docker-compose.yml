@@ -23,7 +23,6 @@ services:
     volumes:
       - uploads:/home/nextjs/apps/web/uploads/
     labels:
-      # requiered
       - "traefik.enable=true" 
       - "traefik.docker.network=frontend"
       - "traefik.http.routers.formbricks.tls.certresolver=myresolver"

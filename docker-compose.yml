@@ -1,0 +1,43 @@
+services:
+  postgres:
+    restart: always
+    image: pgvector/pgvector:pg17
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    environment:
+      # Postgres DB Super User Password
+      # Replace the below with your own secure password & Make sure the password matches the password field in DATABASE_URL above
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - frontend
+    env_file: .env
+
+  formbricks:
+    restart: always
+    env_file: .env
+    image: ghcr.io/formbricks/formbricks:latest
+    depends_on:
+      - postgres
+    ports:
+      - 3000:3000
+    volumes:
+      - uploads:/home/nextjs/apps/web/uploads/
+    labels:
+      # requiered
+      - "traefik.enable=true" 
+      - "traefik.docker.network=frontend"
+      - "traefik.http.routers.formbricks.tls.certresolver=myresolver"
+      - "traefik.http.services.formbricks.loadbalancer.server.port=3000"
+      - "traefik.http.routers.formbricks.rule=Host(`$DOMAIN`)"
+    networks:
+      - frontend
+
+
+volumes:
+  postgres:
+    driver: local
+  uploads:
+
+networks:
+  frontend:
+    external: true
